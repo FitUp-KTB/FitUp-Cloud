@@ -15,8 +15,11 @@ resource "google_compute_instance" "this" {
     network    = var.network_id
     subnetwork = var.subnetwork_id
 
-    access_config {
-      nat_ip = var.nat_ip
+    dynamic "access_config" {
+      for_each = var.nat_ip == null ? [] : [1]
+      content {
+        nat_ip = var.nat_ip
+      }
     }
   }
 

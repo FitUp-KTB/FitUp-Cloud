@@ -20,39 +20,25 @@ resource "google_compute_subnetwork" "dev_private_subnet" {
   private_ip_google_access = true
 }
 
-resource "google_compute_router" "dev_nat_router" {
-  name    = "dev-nat-router"
-  network = var.shared_vpc_id
-  region  = var.region
-}
-
-resource "google_compute_router_nat" "dev_nat" {
-  name                               = "dev-nat-config"
-  router                             = google_compute_router.dev_nat_router.name
-  region                             = var.region
-  nat_ip_allocate_option             = "AUTO_ONLY"
-  source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
-
-  subnetwork {
-    name                    = google_compute_subnetwork.dev_private_subnet.name
-    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
-  }
-}
-
 resource "google_compute_address" "dev_ip" {
-  name   = "dev-static-ip"
-  region = var.region
+  name    = "dev-static-ip"
+  region  = var.region
+  address = "34.47.120.29"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 module "dev_vm" {
   source                  = "../../modules/compute"
   name                    = "dev-compute"
   instance_name           = "dev"
-  machine_type            = "e2-medium"
+  machine_type            = "e2-small"
   zone                    = var.zone
   tags                    = ["develop"]
   image                   = "projects/ubuntu-os-cloud/global/images/family/ubuntu-2204-lts"
-  nat_ip                  = null
+  nat_ip                  = google_compute_address.dev_ip.address
   network_id              = var.shared_vpc_id
   subnetwork_id           = google_compute_subnetwork.dev_subnet.id
   boot_disk_image         = "projects/ubuntu-os-cloud/global/images/family/ubuntu-2204-lts"

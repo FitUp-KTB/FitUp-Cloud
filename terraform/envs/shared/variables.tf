@@ -22,3 +22,13 @@ variable "shared_service_account_email" {
   description = "Shared VM에서 생성된 서비스 계정 이메일"
   type        = string
 }
+
+variable "dev_private_subnet_name" {
+  description = "dev 환경의 private subnet 이름"
+  type        = string
+}
+
+variable "prod_private_subnet_name" {
+  description = "prod 환경의 private subnet 이름"
+  type        = string
+}
